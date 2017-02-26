@@ -1,0 +1,4 @@
+*.pickle
+*.npy
+*.tar.*
+__pycache__/
