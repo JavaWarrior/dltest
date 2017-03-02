@@ -14,7 +14,7 @@ from __future__ import division, print_function, absolute_import
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
-import datamodel
+import nus_wide as datamodel
 
 # Import MNIST data
 # from tensorflow.examples.tutorials.mnist import input_data
@@ -23,20 +23,21 @@ import datamodel
 
 # Parameters
 global_step = tf.Variable(0, trainable=False)
-learning_rate = learning_rate = tf.train.exponential_decay(0.9, global_step,
+learning_rate = tf.train.exponential_decay(0.9, global_step,
                                            100000, 0.96, staircase=False)
-training_epochs = 20
+training_epochs = 60
 batch_size = 256
 display_step = 1
-examples_to_show = 10
+examples_to_show = 20
 
-mnist = datamodel.mnist_data_class(batch_size)
+mnist = datamodel.nus_wide_class(batch_size)
 
 # Network Parameters
-n_hidden_1 = 512 # 1st layer num features
+# n_hidden_1 = 512 # 1st layer num features
+n_hidden_1 = 128 # 1st layer num features
 n_hidden_2 = 265 # 2nd layer num features
-n_hidden_3 = 128 # 2nd layer num features
-n_input = 784 # MNIST data input (img shape: 28*28)
+n_hidden_3 = 32 # 2nd layer num features
+n_input = 500 # MNIST data input (img shape: 28*28)
 
 # tf Graph input (only pictures)
 X = tf.placeholder("float", [None, n_input])
@@ -133,8 +134,8 @@ valid = decoder(encoder(mnist.valid.images))
 valid_error = 0.5 * tf.reduce_mean(tf.pow(tf.sub(valid, mnist.valid.images), 2))
 
 # Define loss and optimizer, minimize the squared error
-cost = tf.add(0.5 *  tf.reduce_mean(tf.pow(tf.sub(y_true, y_pred), 2  ) ), 
-	0.3 * tf.add(
+cost = tf.add(tf.reduce_mean(tf.pow(tf.sub(y_true, y_pred), 2  ) ), 
+	0.0001 * tf.add(
 		tf.add(tf.reduce_mean(tf.pow(weights['encoder_h1'],2)),tf.reduce_mean( tf.pow(weights['encoder_h2'],2))),
 		tf.add(tf.reduce_mean(tf.pow(weights['decoder_h1'],2)), tf.reduce_mean(tf.pow(weights['decoder_h2'],2)))
 		)) 
@@ -143,7 +144,7 @@ cost = tf.add(0.5 *  tf.reduce_mean(tf.pow(tf.sub(y_true, y_pred), 2  ) ),
 # optimizer = tf.train.RMSPropOptimizer(learning_rate).minimize(cost, global_step = global_step)
 # optimizer = tf.train.MomentumOptimizer(0.3, 0.9).minimize(cost)
 # optimizer = tf.train.GradientDescentOptimizer(0.1).minimize(cost)
-optimizer = tf.train.AdamOptimizer(learning_rate = 0.001).minimize(cost)
+optimizer = tf.train.AdamOptimizer(learning_rate = 0.01).minimize(cost)
 print('model constructed ')
 
 
@@ -184,10 +185,10 @@ with tf.Session() as sess:
 	
 	# Compare original images with their reconstructions
 	print('test error=', c)
-	f, a = plt.subplots(2, 10, figsize=(10, 2))
-	for i in range(examples_to_show):
-		a[0][i].imshow(np.reshape(mnist.test.images[i], (28, 28)))
-		a[1][i].imshow(np.reshape(encode_decode[i], (28, 28)))
-	f.show()
-	plt.draw()
+	# f, a = plt.subplots(2, 10, figsize=(10, 2))
+	# for i in range(examples_to_show):
+	# 	a[0][i].imshow(np.reshape(mnist.test.images[i], (28, 28)))
+	# 	a[1][i].imshow(np.reshape(encode_decode[i], (28, 28)))
+	# f.show()
+	# plt.draw()
 	plt.waitforbuttonpress()
